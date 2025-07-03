@@ -344,24 +344,21 @@ function addCurrentTimeIndicator(wrapper, barContainer) {
     // 현재 시간이 속한 스케줄 영역과 위치 계산
     const currentPositionPx = calculateCurrentTimePosition(currentTotalMinutes);
     
-    // 현재 시간 표시 생성
-    const indicator = document.createElement('div');
-    indicator.className = 'current-time-indicator';
-    // 화살표 끝이 빨간 선과 만나도록 텍스트 높이의 절반 추가 (font-size 14px → 약 7px)
-    indicator.style.top = `${currentPositionPx + 7}px`;
-    
-    // 12시간 형식으로 표시 (분까지)
-    const period = currentHours >= 12 ? '오후' : '오전';
-    const displayHours = currentHours > 12 ? currentHours - 12 : (currentHours === 0 ? 12 : currentHours);
-    indicator.textContent = `◀ ${period} ${displayHours}:${currentMinutes.toString().padStart(2, '0')}`;
-    
     // 막대그래프에 현재 시간 선 추가
     const timeLine = document.createElement('div');
     timeLine.className = 'current-time-line';
-    timeLine.style.top = `${currentPositionPx}px`;
+    // 현재 시간 표시기를 줄 상단에 표시하도록 1.5px 위로 조정
+    timeLine.style.top = `${currentPositionPx - 1.5}px`;
     
+    // 빨간줄에 시간 텍스트 추가
+    const timeText = document.createElement('div');
+    timeText.className = 'current-time-text';
+    const period = currentHours >= 12 ? '오후' : '오전';
+    const displayHours = currentHours > 12 ? currentHours - 12 : (currentHours === 0 ? 12 : currentHours);
+    timeText.textContent = `${period} ${displayHours}:${currentMinutes.toString().padStart(2, '0')}`;
+    
+    timeLine.appendChild(timeText);
     barContainer.appendChild(timeLine);
-    wrapper.appendChild(indicator);
     
     // 1초마다 시간 업데이트 (정확한 현재 시간 선 위치를 위해)
     setInterval(() => {
@@ -371,10 +368,10 @@ function addCurrentTimeIndicator(wrapper, barContainer) {
 
 // 현재 시간 표시 및 현재 활동 업데이트
 function updateCurrentTimeIndicator(wrapper, barContainer) {
-    const indicator = wrapper.querySelector('.current-time-indicator');
     const timeLine = barContainer.querySelector('.current-time-line');
+    const timeText = timeLine?.querySelector('.current-time-text');
     
-    if (indicator) {
+    if (timeLine && timeText) {
         const now = new Date();
         const currentHours = now.getHours();
         const currentMinutes = now.getMinutes();
@@ -384,18 +381,14 @@ function updateCurrentTimeIndicator(wrapper, barContainer) {
         // 현재 시간이 속한 스케줄 영역과 위치 계산
         const currentPositionPx = calculateCurrentTimePosition(currentTotalMinutes);
         
-        // 화살표 끝이 빨간 선과 만나도록 텍스트 높이의 절반 추가 (font-size 14px → 약 7px)
-        indicator.style.top = `${currentPositionPx + 7}px`;
-        
         // 막대그래프의 현재 시간 선 업데이트
-        if (timeLine) {
-            timeLine.style.top = `${currentPositionPx}px`;
-        }
+        // 현재 시간 표시기를 줄 상단에 표시하도록 1.5px 위로 조정
+        timeLine.style.top = `${currentPositionPx - 1.5}px`;
         
         // 12시간 형식으로 표시 (분까지)
         const period = currentHours >= 12 ? '오후' : '오전';
         const displayHours = currentHours > 12 ? currentHours - 12 : (currentHours === 0 ? 12 : currentHours);
-        indicator.textContent = `◀ ${period} ${displayHours}:${currentMinutes.toString().padStart(2, '0')}`;
+        timeText.textContent = `${period} ${displayHours}:${currentMinutes.toString().padStart(2, '0')}`;
         
         // 현재 활동 업데이트 (분 단위로)
         updateCurrentActivity(barContainer, currentTotalMinutes);

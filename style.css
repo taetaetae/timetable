@@ -79,7 +79,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px 120px 20px 20px;
+    padding: 20px;
     height: calc(100vh - 120px);
     overflow: visible;
 }
@@ -211,9 +211,23 @@ body {
     position: absolute;
     left: 0;
     right: 0;
-    height: 0.5px;
-    background: rgba(255, 0, 0, 0.5);
+    height: 3px;
+    background: rgba(255, 0, 0, 0.8);
     z-index: 15;
+    pointer-events: none;
+}
+
+.current-time-text {
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff0000;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    z-index: 16;
     pointer-events: none;
 }
 
@@ -278,30 +292,7 @@ body {
     font-weight: 500;
 }
 
-.current-time-indicator {
-    position: absolute;
-    left: 100%;
-    margin-left: 10px;
-    z-index: 10;
-    color: #ff0000;
-    font-size: 14px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-    animation: pulse 2s ease-in-out infinite;
-    line-height: 1;
-}
 
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.05);
-        opacity: 0.8;
-    }
-}
 
 .bar-segment.current-activity {
     z-index: 10;
@@ -340,7 +331,7 @@ body {
     }
     
     .chart-container {
-        padding: 15px 80px 15px 15px;
+        padding: 15px;
         height: calc(100vh - 80px);
     }
     
@@ -367,12 +358,7 @@ body {
         border-bottom-width: 0.5px;
     }
     
-    .current-time-indicator {
-        left: 100%;
-        margin-left: 8px;
-        font-size: 12px;
-        line-height: 1;
-    }
+
     
     .time-scale {
         width: 40px;
@@ -415,6 +401,11 @@ body {
     
     .tooltip-duration {
         font-size: 9px;
+    }
+    
+    .current-time-text {
+        font-size: 12px;
+        right: -8px;
     }
     
     .chart-wrapper {
