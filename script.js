@@ -90,24 +90,16 @@ function prepareChartData() {
     console.log(`총 높이 퍼센트: ${totalPercentage.toFixed(1)}%`);
 }
 
-// 시간 눈금 생성 함수 (픽셀 단위) - 24시간 기준 단순 계산
+// 시간 눈금 생성 함수 (픽셀 단위)
 function createTimeScale() {
     const timeScale = document.createElement('div');
     timeScale.className = 'time-scale';
     
-    const pixelPerMinute = 720 / 1440; // 0.5px per minute
-    
-    // 24시간 전체에 대해 시간 눈금 생성
+    // 24시간 (00:00 ~ 23:00)을 1시간 단위로 생성
     for (let hour = 0; hour < 24; hour++) {
         const timeLabel = document.createElement('div');
         timeLabel.className = 'time-label';
-        timeLabel.textContent = `${hour.toString().padStart(2, '0')}:00`;
-        
-        // 24시간 기준 단순 계산
-        const targetMinutes = hour * 60;
-        const positionPx = Math.round(targetMinutes * pixelPerMinute);
-        
-        timeLabel.style.top = `${positionPx}px`;
+        timeLabel.textContent = `${String(hour).padStart(2, '0')}:00`;
         timeScale.appendChild(timeLabel);
     }
     
@@ -199,14 +191,11 @@ function showTooltip(segment, item, event) {
         <div class="tooltip-arrow"></div>
     `;
     
-    // segment의 위치 계산
-    const segmentRect = segment.getBoundingClientRect();
-    
-    // 말풍선을 body에 추가 (절대 위치)
+    // 말풍선을 body에 추가 (제목 아래 고정 위치)
     tooltip.style.position = 'fixed';
-    tooltip.style.left = (segmentRect.right + 10) + 'px';
-    tooltip.style.top = (segmentRect.top + segmentRect.height / 2) + 'px';
-    tooltip.style.transform = 'translateY(-50%)';
+    tooltip.style.top = '135px';
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
     tooltip.style.zIndex = '1000';
     
     document.body.appendChild(tooltip);
@@ -246,7 +235,7 @@ function createChart() {
     const barContainer = document.createElement('div');
     barContainer.className = 'bar-container';
     
-    // 현재 시간 계산
+    // 현재 시간 계산 (현재 활동 강조용)
     const now = new Date();
     const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
     
@@ -318,80 +307,55 @@ function createChart() {
         barContainer.appendChild(barSegment);
     });
     
-    // 시간 눈금 컨테이너 생성
+    // 차트 래퍼 생성
     const chartWrapper = document.createElement('div');
     chartWrapper.className = 'chart-wrapper';
     
-    // 시간 눈금 추가
+    // 시간 눈금 생성
     const timeScale = createTimeScale();
     chartWrapper.appendChild(timeScale);
+    
+    // 막대 차트 추가
     chartWrapper.appendChild(barContainer);
     
+    // 차트 컨테이너에 래퍼 추가
     chartContainer.appendChild(chartWrapper);
     
-    // 현재 시간 표시 (chartWrapper에 추가)
-    addCurrentTimeIndicator(chartWrapper, barContainer);
-}
-
-// 현재 시간 표시 추가
-function addCurrentTimeIndicator(wrapper, barContainer) {
-    const now = new Date();
-    const currentHours = now.getHours();
-    const currentMinutes = now.getMinutes();
-    const currentSeconds = now.getSeconds();
-    const currentTotalMinutes = currentHours * 60 + currentMinutes;
+    // 현재 시간 선 생성
+    const currentTimeLine = document.createElement('div');
+    currentTimeLine.className = 'current-time-line';
+    currentTimeLine.innerHTML = '<div class="current-time-text"></div>';
+    barContainer.appendChild(currentTimeLine);
     
-    // 현재 시간이 속한 스케줄 영역과 위치 계산
-    const currentPositionPx = calculateCurrentTimePosition(currentTotalMinutes);
-    
-    // 막대그래프에 현재 시간 선 추가
-    const timeLine = document.createElement('div');
-    timeLine.className = 'current-time-line';
-    // 현재 시간 표시기를 줄 상단에 표시하도록 1.5px 위로 조정
-    timeLine.style.top = `${currentPositionPx - 1.5}px`;
-    
-    // 빨간줄에 시간 텍스트 추가
-    const timeText = document.createElement('div');
-    timeText.className = 'current-time-text';
-    const period = currentHours >= 12 ? '오후' : '오전';
-    const displayHours = currentHours > 12 ? currentHours - 12 : (currentHours === 0 ? 12 : currentHours);
-    timeText.textContent = `${period} ${displayHours}:${currentMinutes.toString().padStart(2, '0')}`;
-    
-    timeLine.appendChild(timeText);
-    barContainer.appendChild(timeLine);
-    
-    // 1초마다 시간 업데이트 (정확한 현재 시간 선 위치를 위해)
+    // 현재 활동 강조 및 시간 선 업데이트 (1초마다)
     setInterval(() => {
-        updateCurrentTimeIndicator(wrapper, barContainer);
+        const now = new Date();
+        const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+        updateCurrentActivity(barContainer, currentTotalMinutes);
+        updateCurrentTimeLine(barContainer, currentTotalMinutes);
     }, 1000);
+    
+    // 초기 시간 선 위치 설정
+    updateCurrentTimeLine(barContainer, currentTotalMinutes);
 }
 
-// 현재 시간 표시 및 현재 활동 업데이트
-function updateCurrentTimeIndicator(wrapper, barContainer) {
-    const timeLine = barContainer.querySelector('.current-time-line');
-    const timeText = timeLine?.querySelector('.current-time-text');
+// 현재 시간 선 위치 업데이트
+function updateCurrentTimeLine(container, currentTotalMinutes) {
+    const timeLine = container.querySelector('.current-time-line');
+    const timeText = timeLine.querySelector('.current-time-text');
     
     if (timeLine && timeText) {
+        // 현재 시간의 정확한 픽셀 위치 계산
+        const currentPosition = calculateTimePositionPx(currentTotalMinutes);
+        
+        // 시간 선 위치 설정
+        timeLine.style.top = `${currentPosition}px`;
+        
+        // 현재 시간 텍스트 업데이트
         const now = new Date();
-        const currentHours = now.getHours();
-        const currentMinutes = now.getMinutes();
-        const currentSeconds = now.getSeconds();
-        const currentTotalMinutes = currentHours * 60 + currentMinutes;
-        
-        // 현재 시간이 속한 스케줄 영역과 위치 계산
-        const currentPositionPx = calculateCurrentTimePosition(currentTotalMinutes);
-        
-        // 막대그래프의 현재 시간 선 업데이트
-        // 현재 시간 표시기를 줄 상단에 표시하도록 1.5px 위로 조정
-        timeLine.style.top = `${currentPositionPx - 1.5}px`;
-        
-        // 12시간 형식으로 표시 (분까지)
-        const period = currentHours >= 12 ? '오후' : '오전';
-        const displayHours = currentHours > 12 ? currentHours - 12 : (currentHours === 0 ? 12 : currentHours);
-        timeText.textContent = `${period} ${displayHours}:${currentMinutes.toString().padStart(2, '0')}`;
-        
-        // 현재 활동 업데이트 (분 단위로)
-        updateCurrentActivity(barContainer, currentTotalMinutes);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        timeText.textContent = `${hours}:${minutes}`;
     }
 }
 
@@ -447,10 +411,56 @@ function updateCurrentActivity(container, currentTotalMinutes) {
 
 
 
+// 시급 계산 관련 변수
+const HOURLY_RATE = 10030; // 시급 10,030원
+const DAILY_TOTAL = 24 * HOURLY_RATE; // 하루 총 금액: 240,720원
+const RATE_PER_SECOND = HOURLY_RATE / 3600; // 1초당 금액: 약 2.786원
+
+// 시급 계산 및 업데이트
+function updateMoneyCounter() {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentSecond = now.getSeconds();
+    
+    // 자정부터 현재까지 경과 시간 (초)
+    const elapsedSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
+    
+    // 현재까지 경과 시간 표시
+    const elapsedTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}:${String(currentSecond).padStart(2, '0')}`;
+    
+    // 자정까지 남은 시간 (초)
+    const remainingSeconds = 86400 - elapsedSeconds; // 24시간 = 86400초
+    
+    // 남은 금액 계산
+    const remainingAmount = Math.floor(remainingSeconds * RATE_PER_SECOND);
+    
+    // DOM 업데이트
+    const dailyTotalElement = document.getElementById('dailyTotal');
+    const remainingAmountElement = document.getElementById('remainingAmount');
+    const elapsedTimeElement = document.getElementById('elapsedTime');
+    
+    if (dailyTotalElement) {
+        dailyTotalElement.textContent = `${DAILY_TOTAL.toLocaleString()}원`;
+    }
+    if (remainingAmountElement) {
+        remainingAmountElement.textContent = `${remainingAmount.toLocaleString()}원`;
+    }
+    if (elapsedTimeElement) {
+        elapsedTimeElement.textContent = elapsedTime;
+    }
+}
+
 // 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', function() {
     // 초기 데이터 로드
     loadScheduleData();
+    
+    // 시급 계산 초기 실행
+    updateMoneyCounter();
+    
+    // 1초마다 시급 계산 업데이트
+    setInterval(updateMoneyCounter, 1000);
     
     // 외부 클릭 시 말풍선 숨기기
     document.addEventListener('click', function(e) {

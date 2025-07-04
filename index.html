@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <title>하루 일과표 - 시간 막대 차트</title>
     <link rel="stylesheet" href="style.css">
 
@@ -10,7 +10,14 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="main-title">태태태의 백수 일과표</h1>
+        <div class="title-section">
+            <h1 class="main-title">TIME SCHEDULE</h1>
+            <div class="money-counter">
+                <div class="daily-total">하루 총 <span id="dailyTotal">240,720원</span></div>
+                <div class="remaining-amount">남은 금액: <span id="remainingAmount">0원</span></div>
+                <div class="elapsed-time">경과 시간: <span id="elapsedTime">00:00:00</span></div>
+            </div>
+        </div>
         
         <div class="chart-container">
             <div id="scheduleChart"></div>
