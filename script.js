@@ -193,7 +193,7 @@ function showTooltip(segment, item, event) {
     
     // 말풍선을 body에 추가 (제목 아래 고정 위치)
     tooltip.style.position = 'fixed';
-    tooltip.style.top = '135px';
+    tooltip.style.top = '140px';
     tooltip.style.left = '50%';
     tooltip.style.transform = 'translateX(-50%)';
     tooltip.style.zIndex = '1000';
@@ -426,11 +426,14 @@ function updateMoneyCounter() {
     // 자정부터 현재까지 경과 시간 (초)
     const elapsedSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
     
-    // 현재까지 경과 시간 표시
-    const elapsedTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}:${String(currentSecond).padStart(2, '0')}`;
-    
     // 자정까지 남은 시간 (초)
     const remainingSeconds = 86400 - elapsedSeconds; // 24시간 = 86400초
+    
+    // 남은 시간을 시:분:초로 변환
+    const remainingHours = Math.floor(remainingSeconds / 3600);
+    const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
+    const remainingSecondsOnly = remainingSeconds % 60;
+    const remainingTime = `${String(remainingHours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}:${String(remainingSecondsOnly).padStart(2, '0')}`;
     
     // 남은 금액 계산
     const remainingAmount = Math.floor(remainingSeconds * RATE_PER_SECOND);
@@ -447,12 +450,22 @@ function updateMoneyCounter() {
         remainingAmountElement.textContent = `${remainingAmount.toLocaleString()}원`;
     }
     if (elapsedTimeElement) {
-        elapsedTimeElement.textContent = elapsedTime;
+        elapsedTimeElement.textContent = remainingTime;
     }
+}
+
+// 브라우저의 스크롤 복원 기능 비활성화
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
 }
 
 // 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', function() {
+    // 페이지 로딩 시 스크롤을 최상단으로 이동
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
     // 초기 데이터 로드
     loadScheduleData();
     
@@ -473,6 +486,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // 스크롤이나 리사이즈 시 말풍선 숨기기
     window.addEventListener('scroll', hideTooltip);
     window.addEventListener('resize', hideTooltip);
+    
+    // 페이지 새로고침 시 스크롤 위치 초기화
+    window.addEventListener('beforeunload', function() {
+        window.scrollTo(0, 0);
+    });
+});
+
+// 페이지가 완전히 로드된 후에도 스크롤 위치 확인
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+    }, 100);
 });
 
  

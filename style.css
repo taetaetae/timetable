@@ -4,13 +4,21 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
+html, body {
+    scroll-padding-top: 0;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #ffffff;
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    padding-top: 140px;
+    padding-top: 120px;
     touch-action: manipulation;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -102,6 +110,23 @@ body {
     font-size: 13px;
 }
 
+/* 푸터 스타일 */
+.footer {
+    background: rgba(0, 0, 0, 0.9);
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    padding: 15px 0;
+    font-size: 12px;
+    border-top: 1px solid rgba(255, 0, 0, 0.3);
+    margin-top: 30px;
+}
+
+.footer p {
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
 @keyframes gradient-3d {
     0%, 100% {
         background-position: 0% 50%;
@@ -134,8 +159,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    min-height: calc(100vh - 120px);
+    padding: 30px 20px 20px;
+    min-height: calc(100vh - 130px);
     overflow: visible;
 }
 
@@ -199,7 +224,7 @@ body {
 /* 말풍선 스타일 */
 .time-tooltip {
     position: fixed;
-    top: 135px;
+    top: 140px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
@@ -406,7 +431,7 @@ body {
 
 @media (max-width: 768px) {
     body {
-        padding-top: 120px;
+        padding-top: 100px;
     }
     
     .container {
@@ -440,12 +465,12 @@ body {
     }
     
     .time-tooltip {
-        top: 115px;
+        top: 125px;
     }
     
     .chart-container {
-        padding: 15px;
-        min-height: calc(100vh - 80px);
+        padding: 40px 15px 15px;
+        min-height: calc(100vh - 120px);
     }
     
     .bar-container {
@@ -525,5 +550,11 @@ body {
         top: -15px;
         font-size: 9px;
         padding: 1px 4px;
+    }
+    
+    .footer {
+        padding: 12px 0;
+        font-size: 11px;
+        margin-top: 20px;
     }
 } 
