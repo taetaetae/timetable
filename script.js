@@ -71,23 +71,18 @@ function prepareChartData() {
     scheduleData.forEach(item => {
         item.duration = calculateDuration(item.time);
         // 디버깅: 각 영역의 시간 계산 확인
-        console.log(`${item.task} (${item.time}): ${item.duration}분 = ${Math.floor(item.duration/60)}시간 ${item.duration%60}분`);
     });
     
     // 총 시간 확인 (24시간 = 1440분 기준)
     const actualTotalMinutes = scheduleData.reduce((sum, item) => sum + item.duration, 0);
     const standardTotalMinutes = 1440;
-    console.log(`실제 스케줄 시간: ${actualTotalMinutes}분 = ${Math.floor(actualTotalMinutes/60)}시간 ${actualTotalMinutes%60}분`);
-    console.log(`표준 기준 시간: ${standardTotalMinutes}분 = 24시간 (차이: ${Math.abs(actualTotalMinutes - standardTotalMinutes)}분)`);
     
     // 각 영역의 높이 퍼센트 확인
     let totalPercentage = 0;
     scheduleData.forEach(item => {
         const percentage = (item.duration / actualTotalMinutes) * 100;
         totalPercentage += percentage;
-        console.log(`${item.task}: ${percentage.toFixed(1)}%`);
     });
-    console.log(`총 높이 퍼센트: ${totalPercentage.toFixed(1)}%`);
 }
 
 // 시간 눈금 생성 함수 (픽셀 단위)
@@ -171,8 +166,6 @@ function calculateTimePositionPx(targetMinutes) {
 
 // 말풍선 표시 함수
 function showTooltip(segment, item, event) {
-    console.log('showTooltip 호출됨:', item.task); // 디버깅
-    
     // 기존 말풍선 제거
     hideTooltip();
     
@@ -200,8 +193,6 @@ function showTooltip(segment, item, event) {
     
     document.body.appendChild(tooltip);
     
-    console.log('말풍선 생성됨:', tooltip); // 디버깅
-    
     // 말풍선은 항상 오른쪽에 표시 (위치 조정 제거)
 }
 
@@ -209,7 +200,6 @@ function showTooltip(segment, item, event) {
 function hideTooltip() {
     const existingTooltip = document.getElementById('activeTooltip');
     if (existingTooltip) {
-        console.log('말풍선 제거됨'); // 디버깅
         existingTooltip.remove();
     }
 }
@@ -299,7 +289,6 @@ function createChart() {
         
         // 클릭 이벤트 추가
         barSegment.addEventListener('click', (e) => {
-            console.log('클릭됨:', item.task, item.time); // 디버깅
             e.stopPropagation(); // 이벤트 버블링 방지
             showTooltip(barSegment, item, e);
         });
