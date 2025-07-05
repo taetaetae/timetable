@@ -46,7 +46,96 @@ body {
     padding: 15px 0 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     border-bottom: 2px solid #ff0000;
+    overflow: hidden;
 }
+
+/* 떨어지는 동전과 지폐 애니메이션 */
+.money-rain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.coin {
+    position: absolute;
+    top: -50px;
+    animation-timing-function: ease-in;
+    animation-iteration-count: infinite;
+}
+
+.coin {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(45deg, rgba(255, 215, 0, 0.3), rgba(255, 237, 78, 0.4), rgba(255, 215, 0, 0.3));
+    border-radius: 50%;
+    border: 2px solid rgba(184, 134, 11, 0.4);
+    box-shadow: 
+        0 0 10px rgba(255, 215, 0, 0.2),
+        inset 0 0 10px rgba(255, 215, 0, 0.1);
+    animation-name: fall-coin;
+    animation-duration: 3s;
+}
+
+.coin::before {
+    content: '₩';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    font-weight: bold;
+    color: rgba(184, 134, 11, 0.5);
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.coin.spin {
+    animation-name: fall-coin-spin;
+}
+
+
+
+@keyframes fall-coin {
+    0% {
+        transform: translateY(-50px) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(150px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fall-coin-spin {
+    0% {
+        transform: translateY(-50px) rotate(0deg) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(50px) rotate(180deg) scale(1.1);
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(150px) rotate(720deg) scale(0.8);
+        opacity: 0;
+    }
+}
+
+
 
 .main-title {
     font-size: 2.2em;
@@ -556,5 +645,111 @@ body {
         padding: 12px 0;
         font-size: 11px;
         margin-top: 20px;
+    }
+}
+
+/* 생동감 있는 색상 클래스 */
+.remaining-amount.high-remaining span,
+.elapsed-time.high-remaining span {
+    color: #00ff00 !important;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    animation: pulse-green 2s infinite;
+}
+
+.remaining-amount.medium-remaining span,
+.elapsed-time.medium-remaining span {
+    color: #ffa500 !important;
+    text-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+    animation: pulse-orange 2s infinite;
+}
+
+.remaining-amount.low-remaining span,
+.elapsed-time.low-remaining span {
+    color: #ff6b00 !important;
+    text-shadow: 0 0 10px rgba(255, 107, 0, 0.8);
+    animation: pulse-red 2s infinite;
+}
+
+.remaining-amount.critical-remaining span,
+.elapsed-time.critical-remaining span {
+    color: #ff0000 !important;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 1);
+    animation: pulse-critical 1s infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+@keyframes pulse-orange {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: 0.7;
+    }
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.6;
+    }
+}
+
+@keyframes pulse-critical {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 1);
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 0.5;
+        text-shadow: 0 0 25px rgba(255, 0, 0, 1);
+    }
+}
+
+/* 부드러운 전환 효과 */
+.remaining-amount span,
+.elapsed-time span {
+    transition: all 0.3s ease-in-out;
+}
+
+/* 반짝임 효과 */
+.remaining-amount span,
+.elapsed-time span {
+    animation-duration: 2s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+/* 배경 강조 효과 */
+.remaining-amount.critical-remaining,
+.elapsed-time.critical-remaining {
+    background: radial-gradient(circle, rgba(255, 0, 0, 0.1) 0%, transparent 70%);
+    border-radius: 8px;
+    animation: danger-flash 1.5s infinite;
+}
+
+@keyframes danger-flash {
+    0%, 100% {
+        background: radial-gradient(circle, rgba(255, 0, 0, 0.1) 0%, transparent 70%);
+    }
+    50% {
+        background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, transparent 70%);
     }
 } 

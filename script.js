@@ -316,13 +316,13 @@ function createChart() {
     currentTimeLine.innerHTML = '<div class="current-time-text"></div>';
     barContainer.appendChild(currentTimeLine);
     
-    // 현재 활동 강조 및 시간 선 업데이트 (1초마다)
+    // 현재 활동 강조 및 시간 선 업데이트 (100ms마다)
     setInterval(() => {
         const now = new Date();
         const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
         updateCurrentActivity(barContainer, currentTotalMinutes);
         updateCurrentTimeLine(barContainer, currentTotalMinutes);
-    }, 1000);
+    }, 100);
     
     // 초기 시간 선 위치 설정
     updateCurrentTimeLine(barContainer, currentTotalMinutes);
@@ -411,21 +411,23 @@ function updateMoneyCounter() {
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const currentSecond = now.getSeconds();
+    const currentMillisecond = now.getMilliseconds();
     
-    // 자정부터 현재까지 경과 시간 (초)
-    const elapsedSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
+    // 자정부터 현재까지 경과 시간 (밀리초 포함)
+    const elapsedMilliseconds = currentHour * 3600000 + currentMinute * 60000 + currentSecond * 1000 + currentMillisecond;
     
-    // 자정까지 남은 시간 (초)
-    const remainingSeconds = 86400 - elapsedSeconds; // 24시간 = 86400초
+    // 자정까지 남은 시간 (밀리초)
+    const remainingMilliseconds = 86400000 - elapsedMilliseconds; // 24시간 = 86400000밀리초
     
-    // 남은 시간을 시:분:초로 변환
-    const remainingHours = Math.floor(remainingSeconds / 3600);
-    const remainingMinutes = Math.floor((remainingSeconds % 3600) / 60);
-    const remainingSecondsOnly = remainingSeconds % 60;
-    const remainingTime = `${String(remainingHours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}:${String(remainingSecondsOnly).padStart(2, '0')}`;
+    // 남은 시간을 시:분:초.밀리초로 변환
+    const remainingHours = Math.floor(remainingMilliseconds / 3600000);
+    const remainingMinutes = Math.floor((remainingMilliseconds % 3600000) / 60000);
+    const remainingSeconds = Math.floor((remainingMilliseconds % 60000) / 1000);
+    const remainingMillisecondsOnly = Math.floor((remainingMilliseconds % 1000) / 100); // 소수점 한자리
+    const remainingTime = `${String(remainingHours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}.${remainingMillisecondsOnly}`;
     
-    // 남은 금액 계산
-    const remainingAmount = Math.floor(remainingSeconds * RATE_PER_SECOND);
+    // 남은 금액 계산 (밀리초 단위까지 정확히)
+    const remainingAmount = (remainingMilliseconds / 1000) * RATE_PER_SECOND;
     
     // DOM 업데이트
     const dailyTotalElement = document.getElementById('dailyTotal');
@@ -436,10 +438,39 @@ function updateMoneyCounter() {
         dailyTotalElement.textContent = `${DAILY_TOTAL.toLocaleString()}원`;
     }
     if (remainingAmountElement) {
-        remainingAmountElement.textContent = `${remainingAmount.toLocaleString()}원`;
+        // 생동감 있는 색상 변화 적용
+        const percentage = (remainingMilliseconds / 86400000) * 100;
+        let colorClass = '';
+        if (percentage > 75) {
+            colorClass = 'high-remaining';
+        } else if (percentage > 50) {
+            colorClass = 'medium-remaining';
+        } else if (percentage > 25) {
+            colorClass = 'low-remaining';
+        } else {
+            colorClass = 'critical-remaining';
+        }
+        
+        remainingAmountElement.textContent = `${remainingAmount.toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}원`;
+        remainingAmountElement.className = `remaining-amount ${colorClass}`;
     }
     if (elapsedTimeElement) {
         elapsedTimeElement.textContent = remainingTime;
+        
+        // 시간에 따른 색상 변화
+        const percentage = (remainingMilliseconds / 86400000) * 100;
+        let colorClass = '';
+        if (percentage > 75) {
+            colorClass = 'high-remaining';
+        } else if (percentage > 50) {
+            colorClass = 'medium-remaining';
+        } else if (percentage > 25) {
+            colorClass = 'low-remaining';
+        } else {
+            colorClass = 'critical-remaining';
+        }
+        
+        elapsedTimeElement.className = `elapsed-time ${colorClass}`;
     }
 }
 
@@ -462,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateMoneyCounter();
     
     // 1초마다 시급 계산 업데이트
-    setInterval(updateMoneyCounter, 1000);
+    setInterval(updateMoneyCounter, 100);
     
     // 외부 클릭 시 말풍선 숨기기
     document.addEventListener('click', function(e) {
@@ -489,6 +520,55 @@ window.addEventListener('load', function() {
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
     }, 100);
+});
+
+ 
+// 돈 비 애니메이션 함수들
+function createMoneyRain() {
+    const moneyRain = document.querySelector('.money-rain');
+    if (!moneyRain) return;
+    
+    // 동전 생성
+    function createCoin() {
+        const coin = document.createElement('div');
+        coin.className = Math.random() > 0.5 ? 'coin' : 'coin spin';
+        coin.style.left = Math.random() * 100 + '%';
+        coin.style.animationDelay = Math.random() * 0.5 + 's';
+        coin.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+        
+        // 다양한 크기의 동전
+        const scale = Math.random() * 0.6 + 0.7; // 0.7 ~ 1.3
+        coin.style.transform = `scale(${scale})`;
+        
+        // 다양한 투명도
+        const opacity = Math.random() * 0.3 + 0.2; // 0.2 ~ 0.5
+        coin.style.opacity = opacity;
+        
+        moneyRain.appendChild(coin);
+        
+        // 애니메이션 완료 후 요소 제거
+        setTimeout(() => {
+            if (coin.parentNode) {
+                coin.parentNode.removeChild(coin);
+            }
+        }, 4000);
+    }
+    
+
+    
+    // 초기 생성
+    for (let i = 0; i < 20; i++) {
+        setTimeout(createCoin, Math.random() * 500);
+    }
+    
+    // 지속적인 생성
+    setInterval(createCoin, 400);
+    setInterval(createCoin, 600); // 다른 패턴의 생성
+}
+
+// 페이지 로드 시 돈 비 애니메이션 시작
+window.addEventListener('load', () => {
+    setTimeout(createMoneyRain, 1000); // 1초 후 시작
 });
 
  
